@@ -294,7 +294,21 @@ extension DefaultAVRecorderDelegate: AVRecorderDelegate {
                 }
                 fileComponent = fileName + dateFormatter.string(from: Date())
             }
-            let url: URL = moviesDirectory.appendingPathComponent((fileComponent ?? UUID().uuidString) + fileType.fileExtension)
+            
+            let paths = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)
+            // Get documents folder
+            let documentsDirectory: String = paths.first ?? ""
+            // Get your folder path
+            let dataPath = documentsDirectory + "/CH_LOCAL_STREAMS"
+            if !FileManager.default.fileExists(atPath: dataPath) {
+                // Creates that folder if not exists
+                try? FileManager.default.createDirectory(atPath: dataPath, withIntermediateDirectories: false, attributes: nil)
+            }
+            let fileName = (fileComponent ?? UUID().uuidString) + fileType.fileExtension
+            let fullvideoURL = dataPath.appending("/\(fileName)")
+            
+            let url: URL = URL(fileURLWithPath: fullvideoURL)
+            //moviesDirectory.appendingPathComponent((fileComponent ?? UUID().uuidString) + fileType.fileExtension)
             logger.info("\(url)")
             return try AVAssetWriter(outputURL: url, fileType: fileType.AVFileType)
         } catch {
