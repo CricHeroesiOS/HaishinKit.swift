@@ -433,8 +433,9 @@ public actor RTMPConnection: NetworkConnection {
             logger.trace("<<", message)
         }
         let iterator = outputBuffer.putMessage(type, chunkStreamId: chunkStreamId.rawValue, message: message)
+        let packets = Array(iterator)
         Task {
-            await socket?.send(iterator)
+            await socket?.send(AnyIterator(packets.makeIterator()))
         }
         return message.payload.count
     }
