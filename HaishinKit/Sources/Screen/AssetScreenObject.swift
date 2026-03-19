@@ -100,7 +100,7 @@ public final class AssetScreenObject: ScreenObject, ChromaKeyProcessable {
         ))
     }
 
-    override func draw(_ renderer: some ScreenRenderer) {
+    public override func draw(_ renderer: some ScreenRenderer) {
         super.draw(renderer)
         let duration = CMClock.hostTimeClock.time - startedAt
         if let sampleBuffer, sampleBuffer.presentationTimeStamp <= duration {

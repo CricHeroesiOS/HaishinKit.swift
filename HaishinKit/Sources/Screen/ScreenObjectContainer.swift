@@ -72,7 +72,7 @@ public class ScreenObjectContainer: ScreenObject, ScreenObjectContainerConvertib
         shouldInvalidateLayout = false
     }
 
-    override func draw(_ renderer: some ScreenRenderer) {
+    public override func draw(_ renderer: some ScreenRenderer) {
         guard isVisible else {
             return
         }

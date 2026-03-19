@@ -180,7 +180,7 @@ open class ScreenObject: ScreenObjectConvertible {
         shouldInvalidateLayout = false
     }
 
-    func draw(_ renderer: some ScreenRenderer) {
+    open func draw(_ renderer: some ScreenRenderer) {
         renderer.draw(self)
     }
 }
