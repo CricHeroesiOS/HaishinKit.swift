@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		02ED3B1F2F712CA700306CC2 /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02ED3B1E2F712CA700306CC2 /* HaishinKit */; };
+		02ED3B212F712CA700306CC2 /* MoQTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02ED3B202F712CA700306CC2 /* MoQTHaishinKit */; };
+		02ED3B232F712CA700306CC2 /* RTCHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02ED3B222F712CA700306CC2 /* RTCHaishinKit */; };
+		02ED3B252F712CA700306CC2 /* RTMPHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02ED3B242F712CA700306CC2 /* RTMPHaishinKit */; };
+		02ED3B272F712CA700306CC2 /* SRTHaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 02ED3B262F712CA700306CC2 /* SRTHaishinKit */; };
 		BC05F96E2E3D248A002BCC92 /* Preference.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC9129382D12EA820077EFF3 /* Preference.swift */; };
 		BC4B7DCD2E86D06700973BD7 /* ReplayKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BCD5C7F92E3F189700A69F16 /* ReplayKit.framework */; };
 		BC4B7DD42E86D06700973BD7 /* Screencast.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = BC4B7DCC2E86D06700973BD7 /* Screencast.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -170,9 +175,14 @@
 			files = (
 				BC6842B62E3D1294008FBFEE /* HaishinKit in Frameworks */,
 				BCD2478C2E54C04E00C64280 /* RTCHaishinKit in Frameworks */,
+				02ED3B232F712CA700306CC2 /* RTCHaishinKit in Frameworks */,
 				BC6842B82E3D1294008FBFEE /* MoQTHaishinKit in Frameworks */,
 				BC6842BC2E3D1294008FBFEE /* SRTHaishinKit in Frameworks */,
+				02ED3B1F2F712CA700306CC2 /* HaishinKit in Frameworks */,
+				02ED3B272F712CA700306CC2 /* SRTHaishinKit in Frameworks */,
 				BC6842BA2E3D1294008FBFEE /* RTMPHaishinKit in Frameworks */,
+				02ED3B212F712CA700306CC2 /* MoQTHaishinKit in Frameworks */,
+				02ED3B252F712CA700306CC2 /* RTMPHaishinKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,6 +322,11 @@
 				BC6842B92E3D1294008FBFEE /* RTMPHaishinKit */,
 				BC6842BB2E3D1294008FBFEE /* SRTHaishinKit */,
 				BCD2478B2E54C04E00C64280 /* RTCHaishinKit */,
+				02ED3B1E2F712CA700306CC2 /* HaishinKit */,
+				02ED3B202F712CA700306CC2 /* MoQTHaishinKit */,
+				02ED3B222F712CA700306CC2 /* RTCHaishinKit */,
+				02ED3B242F712CA700306CC2 /* RTMPHaishinKit */,
+				02ED3B262F712CA700306CC2 /* SRTHaishinKit */,
 			);
 			productName = "Example iOS";
 			productReference = BC6841622E3CFBE0008FBFEE /* Example iOS.app */;
@@ -433,6 +448,7 @@
 			);
 			mainGroup = 2945CBB31B4BE66000104112;
 			packageReferences = (
+				02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */,
 			);
 			productRefGroup = 2945CBBE1B4BE66000104112 /* Products */;
 			projectDirPath = "";
@@ -687,7 +703,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = SUEQ2SZ2L5;
+				DEVELOPMENT_TEAM = WCVKR83P83;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS/Screencast/Info.plist;
@@ -728,7 +744,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SUEQ2SZ2L5;
+				DEVELOPMENT_TEAM = WCVKR83P83;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = iOS/Screencast/Info.plist;
@@ -771,7 +787,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = SUEQ2SZ2L5;
+				DEVELOPMENT_TEAM = WCVKR83P83;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -828,7 +844,7 @@
 				CODE_SIGN_ENTITLEMENTS = iOS/HaishinApp.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = SUEQ2SZ2L5;
+				DEVELOPMENT_TEAM = WCVKR83P83;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
@@ -1188,7 +1204,43 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/CricHeroesiOS/HaishinKit.swift.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
+		02ED3B1E2F712CA700306CC2 /* HaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */;
+			productName = HaishinKit;
+		};
+		02ED3B202F712CA700306CC2 /* MoQTHaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */;
+			productName = MoQTHaishinKit;
+		};
+		02ED3B222F712CA700306CC2 /* RTCHaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */;
+			productName = RTCHaishinKit;
+		};
+		02ED3B242F712CA700306CC2 /* RTMPHaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */;
+			productName = RTMPHaishinKit;
+		};
+		02ED3B262F712CA700306CC2 /* SRTHaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 02ED3B1D2F712CA700306CC2 /* XCRemoteSwiftPackageReference "HaishinKit.swift" */;
+			productName = SRTHaishinKit;
+		};
 		BC4B7DDF2E86D13C00973BD7 /* HaishinKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = HaishinKit;
