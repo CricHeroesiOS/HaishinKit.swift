@@ -8,10 +8,10 @@ import Testing
         weak var weakConnection: RTMPConnection?
         _ = try? await {
             let connection = RTMPConnection()
-            _ = try await connection.connect("rtmp://localhost:1935/live")
+            _ = try await connection.connect("rtmp://localhost:19350/live")
             try await connection.close()
             weakConnection = connection
         }()
-        // #expect(weakConnection == nil)
+        #expect(weakConnection == nil)
     }
 }

@@ -1,15 +1,42 @@
 @preconcurrency import AVKit
+import Combine
 import HaishinKit
+@preconcurrency import Logboard
 import SwiftUI
 
 @MainActor
 final class PlaybackViewModel: ObservableObject {
-    @Published private(set) var readyState: SessionReadyState = .closed
+    @Published private(set) var readyState: StreamSessionReadyState = .closed
     @Published private(set) var error: Error?
-    @Published var isShowError = false
+    @Published var hasError = false
+
+    var friendlyErrorMessage: String {
+        guard let error else {
+            return "Something went wrong. Please check your connection and try again."
+        }
+
+        let errorString = String(describing: error).lowercased()
+
+        if errorString.contains("unsupportedcommand") || errorString.contains("error 1") {
+            return "This server doesn't support watching streams directly. Most streaming servers (like Owncast) require you to watch via a web browser instead."
+        } else if errorString.contains("timeout") || errorString.contains("timedout") {
+            return "Connection timed out. The server may be offline or the stream URL might be incorrect."
+        } else if errorString.contains("invalidstate") {
+            return "Unable to connect. Please check that a stream is currently live."
+        } else if errorString.contains("connection") {
+            return "Couldn't reach the server. Check your internet connection and verify the stream URL in Preferences."
+        } else {
+            return "Unable to play this stream. The server may not support direct playback, or no stream is currently live."
+        }
+    }
+
+    func dismissError() {
+        hasError = false
+        error = nil
+    }
 
     private var view: PiPHKView?
-    private var session: (any Session)?
+    private var session: (any StreamSession)?
     private let audioPlayer = AudioPlayer(audioEngine: AVAudioEngine())
     private var pictureInPictureController: AVPictureInPictureController?
 
@@ -20,12 +47,12 @@ final class PlaybackViewModel: ObservableObject {
         do {
             try await session.connect {
                 Task { @MainActor in
-                    self.isShowError = true
+                    self.hasError = true
                 }
             }
         } catch {
             self.error = error
-            self.isShowError = true
+            self.hasError = true
         }
     }
 
@@ -39,8 +66,8 @@ final class PlaybackViewModel: ObservableObject {
 
     func makeSession() async {
         do {
-            session = try await SessionBuilderFactory.shared.make(Preference.default.makeURL())
-                .setMethod(.playback)
+            session = try await StreamSessionBuilderFactory.shared.make(Preference.default.makeURL())
+                .setMode(.playback)
                 .build()
             await session?.setMaxRetryCount(0)
             guard let session else {
@@ -63,6 +90,14 @@ final class PlaybackViewModel: ObservableObject {
             }
         } catch {
             logger.error(error)
+        }
+    }
+}
+
+extension PlaybackViewModel: MTHKViewRepresentable.PreviewSource {
+    // MARK: MTHKViewRepresentable.PreviewSource
+    nonisolated func connect(to view: MTHKView) {
+        Task { @MainActor in
         }
     }
 }

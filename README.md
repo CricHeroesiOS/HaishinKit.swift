@@ -8,8 +8,6 @@
 
 * Camera and Microphone streaming library via RTMP and SRT for iOS, macOS, tvOS and visionOS.
 * 10th Anniversary🎖️In development for 10 years, with 2,778 commits and 163 releases. Thank you. Since Aug 2, 2015.
-* If you want to support e-mail based communication without GitHub.
-  * Consulting fee is [$50](https://www.paypal.me/shogo4405/50USD)/1 incident. I'm able to response a few days.
 
 ## 💖 Sponsors
 Do you need additional support? Technical support on Issues and Discussions is provided only to contributors and academic researchers of HaishinKit. By becoming a sponsor, I can provide the support you need.
@@ -32,20 +30,20 @@ Sponsor: [$50 per month](https://github.com/sponsors/shogo4405): Technical suppo
 ### Development
 |Version|Xcode|Swift|
 |:----:|:----:|:----:|
+|2.2.0+|26.0+|6.0+|
 |2.1.0+|16.4+|6.0+|
 
 ### OS
-|iOS|tvOS|macOS|visionOS|Mac Catalyst|watchOS|
+|iOS|tvOS|Mac Catalyst|macOS|visionOS|watchOS|
 |:-:|:-:|:-:|:-:|:-:|:-:|
-|13.0+|13.0+|10.15+|14.0+|1.0+|-|
+|15.0+|15.0+|15.0+|12.0+|1.0+|-|
 
-- SRTHaishinKit and RTCHaishinKit are not avaliable for Mac Catalyst. 
+- SRTHaishinKit is not avaliable for Mac Catalyst. 
 
 ## 📖 Getting Started
 
 > [!IMPORTANT]
-> Some Xcode's debug features may be incompatible and could cause crashes. Please read the following issue and turn them off.
-> https://github.com/HaishinKit/HaishinKit.swift/issues/1722
+> There are several issues that occur when connected to Xcode. Please also refer to [this document](https://github.com/HaishinKit/HaishinKit.swift/blob/main/HaishinKit/Sources/Docs.docc/known-issue.md).
 
 ### 🔧 Examples
 - Reference implementation app for live streaming `publish` and `playback`.

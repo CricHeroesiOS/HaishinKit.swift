@@ -8,6 +8,8 @@ final class VideoCaptureUnit: CaptureUnit {
 
     let lockQueue = DispatchQueue(label: "com.haishinkit.HaishinKit.VideoCaptureUnit.lock")
 
+    private(set) var isSuspended = false
+
     var mixerSettings: VideoMixerSettings {
         get {
             return videoMixer.settings
@@ -16,9 +18,11 @@ final class VideoCaptureUnit: CaptureUnit {
             videoMixer.settings = newValue
         }
     }
+
     var inputFormats: [UInt8: CMFormatDescription] {
         return videoMixer.inputFormats
     }
+
     #if os(iOS) || os(tvOS) || os(macOS)
     var isTorchEnabled = false {
         didSet {
@@ -50,15 +54,22 @@ final class VideoCaptureUnit: CaptureUnit {
     }
     #endif
 
-    var inputs: AsyncStream<(UInt8, CMSampleBuffer)> {
-        AsyncStream<(UInt8, CMSampleBuffer)> { continutation in
-            self.inputsContinuation = continutation
-        }
-    }
+    @AsyncStreamedFlow
+    var inputs: AsyncStream<(UInt8, CMSampleBuffer)>
 
-    var output: AsyncStream<CMSampleBuffer> {
-        AsyncStream<CMSampleBuffer> { continutation in
-            self.outputContinuation = continutation
+    @AsyncStreamedFlow
+    var output: AsyncStream<CMSampleBuffer>
+
+    var dynamicRangeMode: DynamicRangeMode = .sdr {
+        didSet {
+            guard dynamicRangeMode != oldValue, #available(tvOS 17.0, *) else {
+                return
+            }
+            try? session.configuration { _ in
+                for capture in devices.values {
+                    try capture.setDynamicRangeMode(dynamicRangeMode)
+                }
+            }
         }
     }
 
@@ -68,14 +79,16 @@ final class VideoCaptureUnit: CaptureUnit {
         return videoMixer
     }()
 
-    private var outputContinuation: AsyncStream<CMSampleBuffer>.Continuation?
-    private var inputsContinuation: AsyncStream<(UInt8, CMSampleBuffer)>.Continuation?
-
     #if os(tvOS)
     private var _devices: [UInt8: Any] = [:]
     @available(tvOS 17.0, *)
     var devices: [UInt8: VideoDeviceUnit] {
-        return _devices as! [UInt8: VideoDeviceUnit]
+        get {
+            _devices as! [UInt8: VideoDeviceUnit]
+        }
+        set {
+            _devices = newValue
+        }
     }
     #elseif os(iOS) || os(macOS) || os(visionOS)
     var devices: [UInt8: VideoDeviceUnit] = [:]
@@ -93,22 +106,25 @@ final class VideoCaptureUnit: CaptureUnit {
 
     @available(tvOS 17.0, *)
     func attachVideo(_ track: UInt8, device: AVCaptureDevice?, configuration: VideoDeviceConfigurationBlock?) throws {
-        guard devices[track]?.device != device else {
-            return
-        }
-        if hasDevice && device != nil && devices[track]?.device == nil && session.isMultiCamSessionEnabled == false {
-            throw Error.multiCamNotSupported
-        }
         try session.configuration { _ in
-            for capture in devices.values where capture.device == device {
-                try? capture.attachDevice(nil, session: session, videoUnit: self)
-            }
-            guard let capture = self.device(for: track) else {
-                return
-            }
-            try? configuration?(capture)
+            session.detachCapture(devices[track])
             videoMixer.reset(track)
-            try capture.attachDevice(device, session: session, videoUnit: self)
+            devices[track] = nil
+            if let device {
+                if hasDevice && session.isMultiCamSessionEnabled == false {
+                    throw Error.multiCamNotSupported
+                }
+                let capture = try VideoDeviceUnit(track, device: device)
+                try? capture.setDynamicRangeMode(dynamicRangeMode)
+                #if os(iOS) || os(macOS)
+                capture.videoOrientation = videoOrientation
+                #endif
+                capture.setSampleBufferDelegate(self)
+                try? configuration?(capture)
+                session.attachCapture(capture)
+                capture.apply()
+                devices[track] = capture
+            }
         }
     }
 
@@ -122,54 +138,45 @@ final class VideoCaptureUnit: CaptureUnit {
     #endif
 
     @available(tvOS 17.0, *)
-    func setBackgroundMode(_ background: Bool) {
-        guard !session.isMultitaskingCameraAccessEnabled else {
-            return
-        }
-        if background {
-            for capture in devices.values {
-                session.detachCapture(capture)
-            }
-        } else {
-            for capture in devices.values {
-                session.attachCapture(capture)
-            }
-        }
-    }
-
-    @available(tvOS 17.0, *)
-    func makeDataOutput(_ track: UInt8) -> IOVideoCaptureUnitDataOutput {
+    func makeDataOutput(_ track: UInt8) -> VideoCaptureUnitDataOutput {
         return .init(track: track, videoMixer: videoMixer)
     }
 
-    func finish() {
-        inputsContinuation?.finish()
-        outputContinuation?.finish()
+    @available(tvOS 17.0, *)
+    func suspend() {
+        guard !isSuspended else {
+            return
+        }
+        for capture in devices.values {
+            session.detachCapture(capture)
+        }
+        isSuspended = true
     }
 
     @available(tvOS 17.0, *)
-    private func device(for track: UInt8) -> VideoDeviceUnit? {
-        #if os(tvOS)
-        if _devices[track] == nil {
-            _devices[track] = .init(track)
+    func resume() {
+        guard isSuspended else {
+            return
         }
-        return _devices[track] as? VideoDeviceUnit
-        #else
-        if devices[track] == nil {
-            devices[track] = .init(track)
+        for capture in devices.values {
+            session.attachCapture(capture)
         }
-        return devices[track]
-        #endif
+        isSuspended = false
+    }
+
+    func finish() {
+        _inputs.finish()
+        _output.finish()
     }
 }
 
 extension VideoCaptureUnit: VideoMixerDelegate {
     // MARK: VideoMixerDelegate
     func videoMixer(_ videoMixer: VideoMixer<VideoCaptureUnit>, track: UInt8, didInput sampleBuffer: CMSampleBuffer) {
-        inputsContinuation?.yield((track, sampleBuffer))
+        _inputs.yield((track, sampleBuffer))
     }
 
     func videoMixer(_ videoMixer: VideoMixer<VideoCaptureUnit>, didOutput sampleBuffer: CMSampleBuffer) {
-        outputContinuation?.yield(sampleBuffer)
+        _output.yield(sampleBuffer)
     }
 }

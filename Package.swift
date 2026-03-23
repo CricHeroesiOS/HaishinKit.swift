@@ -16,11 +16,11 @@ let swiftSettings: [SwiftSetting] = [
 let package = Package(
     name: "HaishinKit",
     platforms: [
-        .iOS(.v13),
-        .tvOS(.v13),
-        .visionOS(.v1),
-        .macOS(.v10_15),
-        .macCatalyst(.v14)
+        .iOS(.v15),
+        .tvOS(.v15),
+        .macCatalyst(.v15),
+        .macOS(.v12),
+        .visionOS(.v1)
     ],
     products: [
         .library(name: "HaishinKit", targets: ["HaishinKit"]),
@@ -30,8 +30,8 @@ let package = Package(
         .library(name: "RTCHaishinKit", targets: ["RTCHaishinKit"])
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.3"),
-        .package(url: "https://github.com/shogo4405/Logboard.git", "2.5.0"..<"2.6.0")
+        .package(url: "https://github.com/swiftlang/swift-docc-plugin", from: "1.4.5"),
+        .package(url: "https://github.com/shogo4405/Logboard.git", "2.6.0"..<"2.7.0")
     ],
     targets: [
         .binaryTarget(
@@ -41,8 +41,8 @@ let package = Package(
         ),
         .binaryTarget(
             name: "libdatachannel",
-            url: "https://github.com/HaishinKit/libdatachannel-xcframework/releases/download/v0.23.2/libdatachannel.xcframework.zip",
-            checksum: "45ed389bfbc06034f8d4daaeddd412250089b0e89d25016008a391afe6bc0809"
+            url: "https://github.com/HaishinKit/libdatachannel-xcframework/releases/download/v0.24.0/libdatachannel.xcframework.zip",
+            checksum: "52163eed2c9d652d913b20d1fd5a1925c5982b1dcdf335fd916c72ffa385bb26"
         ),
         .target(
             name: "HaishinKit",

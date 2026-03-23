@@ -2,7 +2,7 @@
 import Foundation
 import HaishinKit
 
-actor SRTSession: Session {
+actor SRTSession: StreamSession {
     var connected: Bool {
         get async {
             await connection.connected
@@ -10,16 +10,16 @@ actor SRTSession: Session {
     }
 
     @AsyncStreamed(.closed)
-    private(set) var readyState: AsyncStream<SessionReadyState>
+    private(set) var readyState: AsyncStream<StreamSessionReadyState>
 
     var stream: any StreamConvertible {
         _stream
     }
 
     private let uri: URL
-    private let method: SessionMethod
+    private let mode: StreamSessionMode
     private var retryCount: Int = 0
-    private var maxRetryCount = kSession_maxRetryCount
+    private var maxRetryCount = kStreamSession_maxRetryCount
     private lazy var connection = SRTConnection()
     private lazy var _stream: SRTStream = {
         SRTStream(connection: connection)
@@ -31,9 +31,9 @@ actor SRTSession: Session {
         }
     }
 
-    init(uri: URL, method: SessionMethod) {
+    init(uri: URL, mode: StreamSessionMode, configuration: (any StreamSessionConfiguration)?) {
         self.uri = uri
-        self.method = method
+        self.mode = mode
     }
 
     func setMaxRetryCount(_ maxRetryCount: Int) {
@@ -74,10 +74,10 @@ actor SRTSession: Session {
         }
         _readyState.value = .open
         retryCount = 0
-        switch method {
+        switch mode {
         case .playback:
             await _stream.play()
-        case .ingest:
+        case .publish:
             await _stream.publish()
         }
         disconnctedTask = Task {

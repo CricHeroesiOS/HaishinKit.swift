@@ -1,13 +1,13 @@
 import Foundation
 import HaishinKit
 
-public struct SRTSessionFactory: SessionFactory {
+public struct SRTSessionFactory: StreamSessionFactory {
     public let supportedProtocols: Set<String> = ["srt"]
 
     public init() {
     }
 
-    public func make(_ uri: URL, method: SessionMethod) -> any Session {
-        return SRTSession(uri: uri, method: method)
+    public func make(_ uri: URL, mode: StreamSessionMode, configuration: (any StreamSessionConfiguration)?) -> any StreamSession {
+        return SRTSession(uri: uri, mode: mode, configuration: configuration)
     }
 }

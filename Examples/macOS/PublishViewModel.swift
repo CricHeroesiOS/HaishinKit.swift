@@ -10,19 +10,12 @@ final class PublishViewModel: ObservableObject {
     @Published private(set) var error: Error?
     @Published var isShowError = false
     @Published private(set) var isTorchEnabled = false
-    @Published private(set) var readyState: SessionReadyState = .closed
+    @Published private(set) var readyState: StreamSessionReadyState = .closed
     private(set) var mixer = MediaMixer(captureSessionMode: .multi)
     private var tasks: [Task<Void, Swift.Error>] = []
-    private var session: (any Session)?
+    private var session: (any StreamSession)?
     private var currentPosition: AVCaptureDevice.Position = .back
-    @ScreenActor private var videoScreenObject: VideoTrackScreenObject?
     @ScreenActor private var currentVideoEffect: VideoEffect?
-
-    init() {
-        Task { @ScreenActor in
-            videoScreenObject = VideoTrackScreenObject()
-        }
-    }
 
     func startPublishing(_ preference: PreferenceViewModel) {
         Task {
@@ -56,8 +49,8 @@ final class PublishViewModel: ObservableObject {
     func makeSession(_ preference: PreferenceViewModel) async {
         // Make session.
         do {
-            session = try await SessionBuilderFactory.shared.make(preference.makeURL())
-                .setMethod(.ingest)
+            session = try await StreamSessionBuilderFactory.shared.make(preference.makeURL())
+                .setMode(.publish)
                 .build()
             guard let session else {
                 return
@@ -105,17 +98,26 @@ final class PublishViewModel: ObservableObject {
             await makeSession(preference)
         }
         Task { @ScreenActor in
-            guard let videoScreenObject else {
-                return
-            }
-            videoScreenObject.cornerRadius = 16.0
-            videoScreenObject.track = 1
-            videoScreenObject.horizontalAlignment = .right
-            videoScreenObject.layoutMargin = .init(top: 16, left: 0, bottom: 0, right: 16)
-            videoScreenObject.size = .init(width: 160 * 2, height: 90 * 2)
             await mixer.screen.size = .init(width: 1280, height: 720)
             await mixer.screen.backgroundColor = NSColor.black.cgColor
-            try? await mixer.screen.addChild(videoScreenObject)
+
+            let assetScreenObject = AssetScreenObject()
+            assetScreenObject.size = .init(width: 180, height: 180)
+            assetScreenObject.layoutMargin = .init(top: 16, left: 16, bottom: 0, right: 0)
+            try? assetScreenObject.startReading(AVAsset(url: URL(fileURLWithPath: Bundle.main.path(forResource: "SampleVideo_360x240_5mb", ofType: "mp4") ?? "")))
+            try? await mixer.screen.addChild(assetScreenObject)
+
+            let image = ImageScreenObject()
+            image.size = .init(width: 120, height: 120)
+            image.horizontalAlignment = .right
+            image.verticalAlignment = .bottom
+            image.layoutMargin = .init(top: 0, left: 0, bottom: 16, right: 16)
+            let appIconFile = URL(fileURLWithPath: Bundle.main.path(forResource: "AppIcon", ofType: "png") ?? "")
+            if let nsImage = NSImage(contentsOf: appIconFile), let cgImage = nsImage.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                let ciImage = CIImage(cgImage: cgImage)
+                image.ciImage = ciImage
+            }
+            try? await mixer.screen.addChild(image)
         }
     }
 
@@ -123,32 +125,12 @@ final class PublishViewModel: ObservableObject {
         Task {
             await mixer.stopRunning()
             try? await mixer.attachAudio(nil)
-            try? await mixer.attachVideo(nil, track: 0)
-            try? await mixer.attachVideo(nil, track: 1)
+            try? await mixer.attachVideo(nil)
             if let session {
                 await mixer.removeOutput(session.stream)
             }
             tasks.forEach { $0.cancel() }
             tasks.removeAll()
-        }
-    }
-
-    func flipCamera() {
-        Task {
-            var videoMixerSettings = await mixer.videoMixerSettings
-            if videoMixerSettings.mainTrack == 0 {
-                videoMixerSettings.mainTrack = 1
-                await mixer.setVideoMixerSettings(videoMixerSettings)
-                Task { @ScreenActor in
-                    videoScreenObject?.track = 0
-                }
-            } else {
-                videoMixerSettings.mainTrack = 0
-                await mixer.setVideoMixerSettings(videoMixerSettings)
-                Task { @ScreenActor in
-                    videoScreenObject?.track = 1
-                }
-            }
         }
     }
 
@@ -161,13 +143,6 @@ final class PublishViewModel: ObservableObject {
                 currentVideoEffect = videoEffect
                 _ = await mixer.screen.registerVideoEffect(videoEffect)
             }
-        }
-    }
-
-    func toggleTorch() {
-        Task {
-            await mixer.setTorchEnabled(!isTorchEnabled)
-            isTorchEnabled.toggle()
         }
     }
 

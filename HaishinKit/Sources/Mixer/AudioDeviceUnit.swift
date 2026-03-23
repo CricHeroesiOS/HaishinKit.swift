@@ -1,7 +1,7 @@
-#if os(iOS) || os(tvOS) || os(macOS)
 import AVFoundation
 import Foundation
 
+#if os(iOS) || os(tvOS) || os(macOS)
 /// Configuration calback block for an AudioDeviceUnit
 @available(tvOS 17.0, *)
 public typealias AudioDeviceConfigurationBlock = @Sendable (AudioDeviceUnit) throws -> Void
@@ -28,31 +28,17 @@ public final class AudioDeviceUnit: DeviceUnit {
     public private(set) var connection: AVCaptureConnection?
     private var dataOutput: AudioDeviceUnitDataOutput?
 
-    init(_ track: UInt8) {
-        self.track = track
-    }
-
-    func attachDevice(_ device: AVCaptureDevice?, session: (some CaptureSessionConvertible), audioUnit: AudioCaptureUnit) throws {
-        setSampleBufferDelegate(nil)
-        session.detachCapture(self)
-        guard let device else {
-            self.device = nil
-            input = nil
-            output = nil
-            connection = nil
-            return
-        }
-        self.device = device
+    init(_ track: UInt8, device: AVCaptureDevice) throws {
         input = try AVCaptureDeviceInput(device: device)
+        self.track = track
+        self.device = device
         output = AVCaptureAudioDataOutput()
         if let input, let output {
             connection = AVCaptureConnection(inputPorts: input.ports, output: output)
         }
-        session.attachCapture(self)
-        setSampleBufferDelegate(audioUnit)
     }
 
-    private func setSampleBufferDelegate(_ audioUnit: AudioCaptureUnit?) {
+    func setSampleBufferDelegate(_ audioUnit: AudioCaptureUnit?) {
         dataOutput = audioUnit?.makeDataOutput(track)
         output?.setSampleBufferDelegate(dataOutput, queue: audioUnit?.lockQueue)
     }
@@ -70,6 +56,19 @@ final class AudioDeviceUnitDataOutput: NSObject, AVCaptureAudioDataOutputSampleB
 
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         audioMixer.append(track, buffer: sampleBuffer)
+    }
+}
+
+#else
+final class AudioDeviceUnit: DeviceUnit {
+    var output: AVCaptureOutput?
+    var track: UInt8
+    var input: AVCaptureInput?
+    var device: AVCaptureDevice?
+    var connection: AVCaptureConnection?
+
+    init(_ track: UInt8, device: AVCaptureDevice) throws {
+        self.track = track
     }
 }
 #endif
